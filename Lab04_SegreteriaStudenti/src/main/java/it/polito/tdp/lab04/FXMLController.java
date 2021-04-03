@@ -6,6 +6,7 @@
 package it.polito.tdp.lab04;
 
 import java.net.URL;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -20,7 +21,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
+
 
 public class FXMLController {
 
@@ -76,12 +77,15 @@ public class FXMLController {
     	String matricolaStringa= txtInserisci.getText();
     	Integer matricola;
     	
-    	
     	try {
     		
     	matricola=Integer.parseInt(matricolaStringa);
     	Studente studente=this.model.getStudente(matricola);
     	
+    	if(matricolaStringa.length()!=6) {
+    		this.txtRisultato.setText("Inserisci la matricola giusta!");
+    		return;
+    	}
     	if(studente==null) {
     		txtRisultato.setText("Non esiste uno studente con la matricola "+matricola);
     		return;
@@ -90,13 +94,15 @@ public class FXMLController {
     		//creo lo string builder per visualizzare meglio
     	
     	List<Corso>listaCorsiPerStudente= this.model.getCorsibyStudenteIscritto(matricola);
+    	Collections.sort(listaCorsiPerStudente);
+    	
     		StringBuilder sb = new StringBuilder();
 
     		for (Corso corso: listaCorsiPerStudente) {
 
-    			sb.append(String.format("%-25s ", corso.getCodins()));
-    			sb.append(String.format("%-10d ", corso.getCrediti()));
-    			sb.append(String.format("%-40s ", corso.getNome()));
+    			sb.append(String.format("%-10s ", corso.getCodins()));
+    			sb.append(String.format("%-12d ", corso.getCrediti()));
+    			sb.append(String.format("%-50s ", corso.getNome()));
     			sb.append(String.format("%-10d ", corso.getPd()));
     			sb.append("\n");
     		}
@@ -131,6 +137,10 @@ public class FXMLController {
     	txtNome.clear();
     	txtCognome.clear();
     	
+    	List<Corso>elencocorsi= this.model.getTuttiICorsi();
+    	Collections.sort(elencocorsi);
+    	
+    	
     	
      try {
 	    Corso corso= boxCorsi.getValue();
@@ -139,6 +149,8 @@ public class FXMLController {
     		return;
     	}
     	List<Studente>listaStudentiIscritti= this.model.getStudentiIscrittiAlCorso(corso);
+    	Collections.sort(listaStudentiIscritti);
+    	
     	
     	if(listaStudentiIscritti.size()==0) {
     		txtRisultato.setText("Nessuno studente appartiene al corso " +corso);
@@ -147,9 +159,10 @@ public class FXMLController {
     	StringBuilder sb = new StringBuilder();
 
 		for (Studente studente : listaStudentiIscritti) {
+			
 
 			sb.append(String.format("%-10d ", studente.getMatricola()));
-			sb.append(String.format("%-30s ", studente.getCognome()));
+			sb.append(String.format("%-20s ", studente.getCognome()));
 			sb.append(String.format("%-20s ", studente.getNome()));
 			sb.append(String.format("%-10s ", studente.getCDS()));
 			sb.append("\n");
@@ -179,6 +192,10 @@ public class FXMLController {
     		matricola=Integer.parseInt(matricolaStringa);
     		studente=this.model.getStudente(matricola);
     		
+    		if(matricolaStringa.length()!=6) {
+        		this.txtRisultato.setText("ERRORE: la matricola deve essere lunga 6 numeri!");
+        		return;
+    		}
     		if(studente==null) {
     			txtRisultato.setText("ERRORE: Nessuno studente ha questa matricola");
     			return;
@@ -215,8 +232,12 @@ public class FXMLController {
         	}
     		
         		matricola=Integer.parseInt(matricolaStringa);
-        		Studente studente=this.model.getStudente(matricola);
+        	     Studente studente=this.model.getStudente(matricola);
         		
+        		if(matricolaStringa.length()!=6) {
+            		this.txtRisultato.setText("Inserisci la matricola giusta!");
+            		return;
+        		}
         		if(studente==null) {
         			txtRisultato.setText("ERRORE: Nessuno studente ha questa matricola");
         			return;
@@ -276,9 +297,10 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model=model;
-    
-    	for(Corso c: model.getTuttiICorsi()) {
-    	boxCorsi.getItems().add(c);
-    }
+   
+    	//aggiungo tutti i corsi al combo box
+    	this.boxCorsi.getItems().addAll(model.getTuttiICorsi());
+    	//setto il carattere per la textArea da usare
+    	txtRisultato.setStyle("-fx-font-family: monospace");
     }
 }

@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,9 +18,10 @@ public class CorsoDAO {
 	 */
 	public List<Corso> getTuttiICorsi() {
 
-		final String sql = "SELECT * FROM corso";
+		final String sql = "SELECT * "+  "FROM corso "+ "ORDER BY nome ASC ";
 
 		List<Corso> corsi = new LinkedList<Corso>();
+	
 
 		try {
 			Connection conn = ConnectDB.getConnection();
@@ -40,10 +42,11 @@ public class CorsoDAO {
 				// Aggiungi il nuovo oggetto Corso alla lista corsi
 				Corso c= new Corso(rs.getString("codins"), rs.getInt("crediti"), rs.getString("nome"), rs.getInt("pd"));
 			corsi.add(c);
+		
 			}
 
 			conn.close();
-			
+			Collections.sort(corsi);
 			return corsi;
 			
 
